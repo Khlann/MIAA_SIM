@@ -1,7 +1,3 @@
-import os
-
-# 设置 Qt 缩放因子
-os.environ['QT_SCALE_FACTOR'] = '0.5'
 import pybullet as p
 import pybullet_data
 import time
@@ -37,6 +33,32 @@ class Controller:
             # Check if 'q' is pressed (ASCII code 113)
             if 113 in keys and keys[113] & p.KEY_WAS_TRIGGERED:
                 break
+            
+    def set_robot_pose(self,robot_id, position, orientation):
+        """
+        设置机器人的初始位置和姿态
+        
+        参数:
+            robot_id: 机器人的ID
+            position: [x, y, z] 位置坐标
+            orientation: [x, y, z, w] 四元数表示的姿态
+        """
+        # 设置机器人基座的位置和姿态
+        p.resetBasePositionAndOrientation(
+            bodyUniqueId=robot_id,
+            posObj=position,
+            ornObj=orientation
+        )
+    
+    def add_object(self,object_config,position,orientation):
+        """
+        添加物体
+        """ 
+        object_urdf = object_config['object_description']
+        object_id = p.loadURDF(object_urdf)
+        self.set_robot_pose(object_id,position,orientation)
+        return object_id
+        
     def control(self,target_positions):
         joint_indices = [0, 1, 2, 3, 4, 5, 6]  # 7轴机器人的关节索引
         # 使用 setJointMotorControlArray 控制所有关节
