@@ -1,3 +1,4 @@
 external/
 config/__pycache__/
 robot/__pycache__/
+asset/
