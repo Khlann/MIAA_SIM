@@ -11,3 +11,8 @@ banana_config = {
     "object_visual_meshes": str(asset_dir / "object/banana/visual.glb"),
     "object_name": "banana"
 }
+cup_config = {
+    "object_collision_meshes": str(asset_dir / "object/cup/textured.obj"),
+    "object_visual_meshes": str(asset_dir / "object/cup/base.glb"),
+    "object_name": "cup"
+}
