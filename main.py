@@ -8,10 +8,10 @@ import numpy as np
 from mplib import Pose
 if __name__ == "__main__":
     controller = Controller()
-    robot = controller.add_robot(gen3_config)
+    robot = controller.add_robot(panda_config)
     drawer = controller.add_object(drawer_config)
     # obj = controller.add_multiple_objects()
-    mp = MotionPlanning(gen3_config,controller)
+    mp = MotionPlanning(panda_config,controller)
     poses = [
         Pose([0.4, 0.3, 0.12], [0, 1, 0, 0]),
         Pose([0.2, -0.3, 0.08], [0, 1, 0, 0]),
