@@ -1,4 +1,3 @@
-pip install pybullet
-pip install numpy
-pip install opencv-python
-按q退出显示
+安装
+sapien==3.0.0b1
+mplib==0.2.1
