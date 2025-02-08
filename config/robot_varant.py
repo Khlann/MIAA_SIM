@@ -9,12 +9,6 @@ panda_config = {
     "orientation": [1, 0, 0, 0]
 }
 
-ur5_config = {
-    "object_description": str(asset_dir / "robot_description/ur5/ur5.urdf"),
-    "object_name": "gen3",
-    "position": [0, 0, 0],
-    "orientation": [1, 0, 0, 0]
-}
 
 sawyer_config = {
     "urdf_path": str(asset_dir / "robot_description/sawyer/sawyer.urdf"),

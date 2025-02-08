@@ -1,6 +1,6 @@
 from robot.controller import Controller
 from robot.motion_planning import MotionPlanning
-from config.robot_varant import panda_config,ur5_config,sawyer_config,gen3_config
+from config.robot_varant import panda_config,sawyer_config,gen3_config
 from config.object_varant import table_config,banana_config,cup_config,bottle_config,drawer_config
 from config.camera_varant import camera_config
 
