@@ -44,3 +44,4 @@ if __name__ == "__main__":
         mp.move_to_pose(new_pose)
     controller.out.release()
     # controller.visualize(robot)
+    

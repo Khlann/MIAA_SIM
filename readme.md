@@ -66,3 +66,24 @@ mp.move_to_joints(target_joints)
 
 # 最后
 该仓库还在不断完善中，欢迎使用者提出宝贵意见。
+
+# Rethink
+
+# Camera Calibration
+
+You need to install pyzbar before you start camera calibration.
+```bash
+pip install pyzbar
+```
+[QRcode Generator](https://www.qr-code-generator.com/)
+# Envronment
+
+## install libfranka 
+
+We recomand to install panda-python==0.8.0 libfranka==0.9.2
+
+```bash
+wget https://github.com/JeanElsner/panda-py/releases/download/v0.8.1/panda_py_0.8.1_libfranka_0.9.2.zip
+unzip panda_py_0.8.1_libfranka_0.9.2.zip
+pip install panda_python-0.8.1+libfranka.0.9.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+```
