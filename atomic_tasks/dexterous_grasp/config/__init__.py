@@ -1,17 +1,17 @@
-# from .understanding_module_varant import (
-#     proxy_settings,
-#     api_key,
-#     request_info,
-#     file_paths,
-#     iflytek_config,
-#     command_token
-# )
+from .understanding_module_varant import (
+    proxy_settings,
+    api_key,
+    request_info,
+    file_paths,
+    iflytek_config,
+    command_token
+)
 
-# from .vision_module_variant import (
-#     external_gsam2_relative_path,
-#     ground_sam2_config,
-#     dinox_sam2_clip_config
-# )
+from .vision_module_variant import (
+    external_gsam2_relative_path,
+    ground_sam2_config,
+    # dinox_sam2_clip_config
+)
 
 # from .planning_module_varant import (
 #     dexterous_hand_grasp_pose,

@@ -3,6 +3,14 @@ import torch
 from PIL import Image
 from torchvision.ops import box_convert
 
+# import sys
+# import cv2
+# project_root = "/home/arlen/arlen/miaa_sim/atomic_tasks"
+# sys.path.insert(0,project_root)
+# from external.gsam2.sam2.build_sam import build_sam2
+# from external.gsam2.sam2.sam2_image_predictor import SAM2ImagePredictor
+# from external.gsam2.grounding_dino.groundingdino.util.inference import load_model, load_image, predict
+# import external.gsam2.grounding_dino.groundingdino.datasets.transforms as T
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from grounding_dino.groundingdino.util.inference import load_model, load_image, predict

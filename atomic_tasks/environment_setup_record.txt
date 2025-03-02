@@ -23,10 +23,12 @@ cf external
 git clone https://github.com/IDEA-Research/Grounded-SAM-2.git gsam2
 cd gsam2
 cd checkpoints
-bash download_ckpts.sh
+bash download_ckpts.sh #为了实现更好的sam效果，请将sh文件里面47-54的代码注释，只保留sam large的这部分
+cd ..
 cd gdino_checkpoints
-bash download_ckpts.sh
+bash download_ckpts.sh #为了实现更好的dino效果，请将sh文件里面18-19行代码注释，只保留swin-b的这部分
 pip3 install torch torchvision torchaudio
+cd ..
 pip install -e .
 
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run

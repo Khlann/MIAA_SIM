@@ -60,6 +60,8 @@ class FrankaController(LoggerValidator):
     def close_gripper(self):
         self.gripper.grasp(0.02, 0.2,5,0.06,0.09)
 
+    def open_gripper(self):
+        self.gripper.move(0.1, 0.2)
     def move_to_start(self):
         self.robot_arm.move_to_start()
     # def execute_smooth_movement_joints(self, movement_command: list):

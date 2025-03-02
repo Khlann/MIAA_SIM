@@ -64,7 +64,11 @@ class IntelRealSense(LoggerValidator):
 
     @check_frames
     def xy2d2xy3d(self, x_2d, y_2d):
-        depth = self.depth_frame.get_distance(int(x_2d), int(y_2d))
-        _, depth_intrinsics = self.get_depth_info()
+        # depth = self.depth_frame.get_distance(int(x_2d), int(y_2d))
+        depth_frame, depth_intrinsics = self.get_depth_info()
+        depth = depth_frame[int(y_2d)][int(x_2d)]
         x_3d, y_3d, z_3d = rs.rs2_deproject_pixel_to_point(depth_intrinsics, [x_2d, y_2d], depth)
+        x_3d = x_3d / 1000
+        y_3d = y_3d / 1000
+        z_3d = z_3d / 1000
         return x_3d, y_3d, z_3d

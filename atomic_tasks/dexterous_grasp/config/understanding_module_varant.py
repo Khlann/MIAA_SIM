@@ -9,7 +9,7 @@ IflytekConfig = namedtuple('IflytekConfig', ['app_id', 'msc_lib_path', 'audio_fi
 
 
 # Environment variables and paths
-project_root_path = os.getenv("PROJECT_ROOT")
+project_root_path = "/home/arlen/arlen/miaa_sim/atomic_tasks"
 
 # Proxy settings
 proxy_settings = ProxySettings(
@@ -17,7 +17,7 @@ proxy_settings = ProxySettings(
     https="http://localhost:7890"
 )
 
-api_key = "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"
+api_key = "sk-E0N5PJoic53rGB261192DcD56c2a42E890F4EbAaFb8b497b"
 
 file_paths = FilePaths(
     understanding_test_image=os.path.join(project_root_path, "dexterous_grasp/config/unittest_assets/understanding/over.jpeg"),
@@ -68,7 +68,7 @@ request_info = RequestInfo(
             **User instruction**: "{}"
         """.format(command_token),
     model="chatgpt-4o-latest",
-    api_url="https://api.openai.com/v1/chat/completions"
+    api_url="https://az.gptplus5.com/v1/chat/completions"
 )
 
 iflytek_config = IflytekConfig(

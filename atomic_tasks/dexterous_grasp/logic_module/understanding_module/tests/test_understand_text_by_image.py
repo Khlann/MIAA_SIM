@@ -1,5 +1,9 @@
 import cv2
 import unittest
+import sys
+import cv2
+project_root = "/home/arlen/arlen/miaa_sim/atomic_tasks"
+sys.path.insert(0,project_root)
 from dexterous_grasp.logic_module.understanding_module.image_understanding_by_text import GPT4Integration
 from dexterous_grasp.config import request_info, api_key, file_paths
 

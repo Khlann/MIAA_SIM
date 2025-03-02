@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as R_cal
 from dexterous_grasp.logic_module.planning_module import DexterousHandPlanner
 from dexterous_grasp.logger_module import LoggerValidator
 from dexterous_grasp.config import arm_motion_params
@@ -413,9 +413,9 @@ class FrankaArmPlanner:
         # 将两个旋转矩阵相乘
         rotation_matrix = np.dot(rotation_matrix_y, rotation_matrix_z)
 
-        z = 0.09
-        x = 0.04
-        y = 0.03
+        # z = 0.05
+        # x = 0.04
+        # y = 0.03
         P_O_B[0] += x
         P_O_B[1] += y
         P_O_B[2] -= z
@@ -425,3 +425,122 @@ class FrankaArmPlanner:
         pose_matrix[:3, 3] = P_O_B
         return pose_matrix
         # pass
+
+    def rotation_matrix_to_quaternion(self, rotation_matrix):
+        """
+        将旋转矩阵转换为四元数。
+        """
+        rotation = R_cal.from_matrix(rotation_matrix)
+        quaternion = rotation.as_quat()
+        return quaternion
+    
+    def get_translation_and_rotation(self, P_O_C, R, T_C_E, T_E_B):
+        # 首先，将P_O_C转换为齐次坐标
+
+        P_O_C_homogeneous = np.array([P_O_C[0], P_O_C[1], P_O_C[2], 1]).reshape(4, 1)
+
+        # 计算物体相对于基座的位置P_O_B
+        P_O_B = np.dot(T_E_B, np.dot(T_C_E, P_O_C_homogeneous))[:3, 0]
+
+        # 创建绕y轴旋转180度（pi弧度）的旋转矩阵
+        rotation_matrix_y = np.array([
+            [-1, 0, 0],
+            [0, 1, 0],
+            [0, 0, -1]
+        ])
+
+        # 创建绕z轴旋转R弧度的旋转矩阵
+        rotation_matrix_z = np.array([
+            [np.cos(R), -np.sin(R), 0],
+            [np.sin(R), np.cos(R), 0],
+            [0, 0, 1]
+        ])
+
+        # 将两个旋转矩阵相乘
+        rotation_matrix = np.dot(rotation_matrix_y, rotation_matrix_z)
+
+        # rotation = R_cal.from_matrix(rotation_matrix)
+        rotation = self.rotation_matrix_to_quaternion(rotation_matrix_y)
+        translation = P_O_B
+        return translation, rotation
+
+    def adjust_grasp_angle(self, q_solution, R):
+        # 调整 grasp 角度
+        q_solution[6] = R
+        return q_solution
+    def plan_curobo(self, P_O_C, R, T_C_E, T_E_B):
+        # Third Party
+        import torch
+
+        # cuRobo
+        from curobo.types.base import TensorDeviceType
+        from curobo.types.math import Pose
+        from curobo.types.robot import RobotConfig
+        from curobo.util_file import get_robot_configs_path, join_path, load_yaml
+        from curobo.wrap.reacher.ik_solver import IKSolver, IKSolverConfig
+
+
+        tensor_args = TensorDeviceType()
+
+        config_file = load_yaml(join_path(get_robot_configs_path(), "franka.yml"))
+        urdf_file = config_file["robot_cfg"]["kinematics"][
+            "urdf_path"
+        ]  # Send global path starting with "/"
+        base_link = config_file["robot_cfg"]["kinematics"]["base_link"]
+        ee_link = config_file["robot_cfg"]["kinematics"]["ee_link"]
+        robot_cfg = RobotConfig.from_basic(urdf_file, base_link, ee_link, tensor_args)
+
+        ik_config = IKSolverConfig.load_from_robot_config(
+            robot_cfg,
+            None,
+            rotation_threshold=0.05,
+            position_threshold=0.005,
+            num_seeds=20,
+            self_collision_check=False,
+            self_collision_opt=False,
+            tensor_args=tensor_args,
+            use_cuda_graph=True,
+        )
+        ik_solver = IKSolver(ik_config)
+
+        # q_sample = ik_solver.sample_configs(5000)#七个关节角度
+        # q_sample_single = q_sample[0]
+
+        # kin_state = ik_solver.fk(q_sample)
+        # kin_state_single = ik_solver.fk(q_sample_single)
+
+        # goal = Pose(kin_state.ee_position, kin_state.ee_quaternion)
+        translation, rotation = self.get_translation_and_rotation(P_O_C, R, T_C_E, T_E_B)
+        translation_tensor = torch.tensor(translation, device=tensor_args.device, dtype=tensor_args.dtype)
+        rotation_tensor = torch.tensor(rotation, device=tensor_args.device, dtype=tensor_args.dtype)
+        goal = Pose(translation_tensor, rotation_tensor)
+
+        # result = ik_solver.solve_batch(goal)
+        result_single = ik_solver.solve_batch(goal)
+
+        # q_solution = result.solution[result.success]
+        q_solution = result_single.solution[result_single.success]
+        
+        # 将tensor转为list
+        q_solution = q_solution.tolist()[0]
+
+        q_solution = self.adjust_grasp_angle(q_solution,R)
+        return q_solution
+
+
+        # R = 1.7
+        # P_O_B = np.array([0.4, 0.1, -0.02])
+
+
+
+        # z = 0.09
+        # x = 0.04
+        # y = 0.03
+        # P_O_B[0] += x
+        # P_O_B[1] += y
+        # P_O_B[2] -= z
+        # # 构建4x4的变换矩阵
+        # pose_matrix = np.eye(4)
+        # pose_matrix[:3, :3] = rotation_matrix
+        # pose_matrix[:3, 3] = P_O_B
+        # return pose_matrix

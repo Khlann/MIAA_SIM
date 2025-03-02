@@ -5,7 +5,7 @@ from collections import namedtuple
 MotionParams = namedtuple('MotionParams', ['default_acc', 'default_radius', 'tcp_save_place_joint_position', 'tcp_up_on_basket_joint_position'])
 HandMotionParams = namedtuple('HandMotionParams', ['speedSet', 'angleSet_execute1', 'angleSet_execute2', 'forceSet', 'tinyforceSet', 'angleSet_abort'])
 HandDeviceParams = namedtuple('HandDeviceParams', ['port', 'baudrate', 'regdict'])
-FrankaParams = namedtuple('FrankaParams', ['hostname', 'username', 'password'])
+FrankaParams = namedtuple('FrankaParams', ['hostname', 'username', 'password','T_C_E'])
 RealManParams = namedtuple('RealManParams', ['hostname', 'username', 'password'])
 
 # Robot arm IP address
@@ -61,7 +61,15 @@ hand_device_params = HandDeviceParams(
 franka_config = FrankaParams(
     hostname="172.16.0.2",
     username="franka",
-    password="franka123"
+    password="franka123",
+    T_C_E = np.array([
+        [0.01324788, 0.99925666, -0.03620257, 0.08072094],
+        [-0.99713529, 0.01589888, 0.07394889, -0.02021566],
+        [0.0744695, 0.0351192, 0.9966047, -0.14172613],
+        [0., 0., 0., 1.]
+    ])#相机标定： 相机到末端法兰盘的变换矩阵
+
+
 )
 
 realman_config = RealManParams(
