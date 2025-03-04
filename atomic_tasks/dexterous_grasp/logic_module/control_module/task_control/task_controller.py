@@ -1,4 +1,5 @@
 import multiprocessing
+import panda_py
 from dexterous_grasp.logic_module.control_module import FrankaController, RealManArmController
 from dexterous_grasp.logger_module.logger import LoggerValidator
 
@@ -15,11 +16,13 @@ class TaskController(LoggerValidator):
             self.robotic_arm_controller = FrankaController(robot_config, logger_manager=logger_manager)
             self.robotic_arm_controller.robot_arm.move_to_start()
             self.start_pose = self.robotic_arm_controller.robot_arm.get_pose()
+            self.initial_angle_gap = panda_py.ik(self.start_pose)[6]
         elif robot_type == "realman":
             self.robotic_arm_controller = RealManArmController(robot_config, logger_manager=logger_manager)
             #todo: add realman move to start
         # self.robotic_arm_controller = RoboticArmController(robot_type, robot_config, logger_manager=logger_manager)
         # self.move_to_safeplace()
+
         
     def dict_to_list(self, dictionary: dict) -> list:
         return list(dictionary.values())

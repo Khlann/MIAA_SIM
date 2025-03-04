@@ -76,8 +76,9 @@ P_O_C, R = estimation2D.process_mask_and_transform(mask, cam)
 
 T_E_B = task_controller.robotic_arm_controller.robot_arm.get_pose()
 
+initial_angle_gap = task_controller.initial_angle_gap
 # q策略
-q = robot_planner.plan_curobo(P_O_C, R, T_C_E, T_E_B)
+q = robot_planner.plan_curobo(P_O_C, R, T_C_E, T_E_B,initial_angle_gap)
 task_controller.robotic_arm_controller.execute_movement_joints(q)
 # tpose策略
 # q = robot_planner.plan_curobo(P_O_C, R, T_C_E, T_E_B)

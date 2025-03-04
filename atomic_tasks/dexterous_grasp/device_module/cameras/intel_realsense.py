@@ -72,3 +72,6 @@ class IntelRealSense(LoggerValidator):
         y_3d = y_3d / 1000
         z_3d = z_3d / 1000
         return x_3d, y_3d, z_3d
+    
+    def save_npz(self, filename):
+        np.savez(filename, color_image=self.color_image, depth_image=self.depth_image) 

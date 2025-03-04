@@ -6,14 +6,10 @@ class Estimation:
         pass
   
     def get_rotation_angle(self, mask):
-        # if len(mask[0][0].shape) == 3:
-        #     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        # 进行二值化处理
         _, binary = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
 
         try:
             if len(mask[0][0]) == 3:
-                # 将 binary 图像转换为 CV_8UC1 类型
                 binary = cv2.cvtColor(binary, cv2.COLOR_BGR2GRAY)
         except:
             pass
@@ -47,28 +43,36 @@ class Estimation:
         angle = np.arctan2(dy, dx) * 180 / np.pi
 
         print(f"最长斜边与 x 轴的夹角: {angle} 度")
+        # Visulaization
+        # 绘制表示夹角的箭头
+        start_point = tuple(longest_edge[0])
+        end_point = tuple(longest_edge[1])
+        # 沿着 x 轴正方向画一条辅助线
+        x_axis_end = (start_point[0] + 100, start_point[1])
+        cv2.line(mask, start_point, x_axis_end, (255, 0, 0), 2)  # 蓝色辅助线
+        # 画表示夹角的箭头
+        cv2.arrowedLine(mask, start_point, end_point, (0, 255, 0), 2)
 
+        # 显示结果
+        cv2.imshow('Max Enclosing Polygon with Longest Edge', mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         # angle 转为弧度
         angle = np.radians(angle)
-        angle = abs(angle)
+        if angle < 0:
+            angle = np.pi + angle
+        # angle = abs(angle)
 
-        angle = np.pi/2 - angle
-        angle = abs(angle)
-        # Visulaization
-        # # 绘制表示夹角的箭头
-        # start_point = tuple(longest_edge[0])
-        # end_point = tuple(longest_edge[1])
-        # # 沿着 x 轴正方向画一条辅助线
-        # x_axis_end = (start_point[0] + 100, start_point[1])
-        # cv2.line(dinox_mask, start_point, x_axis_end, (255, 0, 0), 2)  # 蓝色辅助线
-        # # 画表示夹角的箭头
-        # cv2.arrowedLine(dinox_mask, start_point, end_point, (0, 255, 0), 2)
-
-        # # 显示结果
-        # cv2.imshow('Max Enclosing Polygon with Longest Edge', dinox_mask)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-
+        # angle = np.pi/2 - angle
+        # angle = abs(angle)
+        angle_1 = angle- np.pi/2
+        angle_2 = angle + np.pi/2
+        if angle_1 > 0 and angle_1 < np.pi:
+            angle = angle_1
+        elif angle_2 > 0 and angle_2 < np.pi:
+            angle = angle_2
+        # angle = angle_1 if angle> 0 else angle_2
+# 
         return angle
 
     def process_mask_and_transform(self, mask, cam):
@@ -79,8 +83,7 @@ class Estimation:
                 mask = mask[:, :, 0]
         except:
             print("mask is not a 3 channel image")
-        # 求出mask的中心点,mask是一个二值图像,0表示背景,255表示前景
-        # 求出mask的中心点
+
         mask = mask.astype(np.uint8)
         M = cv2.moments(mask)
         cx = int(M['m10'] / M['m00'])
@@ -100,7 +103,5 @@ class Estimation:
         y_3d = np.mean(y_3d_list)
         z_3d = np.mean(z_3d_list)
                     
-        # x_3d , y_3d, z_3d = cam.xy2d2xy3d(cx, cy)
         P_O_C = np.array([x_3d, y_3d, z_3d])
         return P_O_C , angle
-        # print(f"cx:{cx},cy:{cy}")
