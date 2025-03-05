@@ -54,9 +54,9 @@ class Estimation:
         cv2.arrowedLine(mask, start_point, end_point, (0, 255, 0), 2)
 
         # 显示结果
-        cv2.imshow('Max Enclosing Polygon with Longest Edge', mask)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('Max Enclosing Polygon with Longest Edge', mask)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         # angle 转为弧度
         angle = np.radians(angle)
         if angle < 0:

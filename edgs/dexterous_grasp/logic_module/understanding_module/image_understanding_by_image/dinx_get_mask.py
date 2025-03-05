@@ -15,12 +15,8 @@ from dds_cloudapi_sdk.tasks.detection import DetectionTask
 from dds_cloudapi_sdk import TextPrompt
 
 class Dinox:
-    def __init__(self):
-        API_TOKEN = "82c4f05eadf72bfae374da97c456344c"
-        # 31cf5ba0110357796936e88bcfc2762f
-        IMG_PATH = "/home/arlen/arlen/miaa_sim/cola_image.png"
-
-        token = API_TOKEN
+    def __init__(self,api_token):
+        token = api_token
         config = Config(token)
         self.client = Client(config)
     

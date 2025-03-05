@@ -7,11 +7,6 @@ from dexterous_grasp.logger_module.logger import LoggerValidator
 class TaskController(LoggerValidator):
     def __init__(self, robot_type, robot_config, logger_manager=None):
         super().__init__(logger_manager)
-        # self.tcp_save_place_joint_position = arm_motion_params.tcp_save_place_joint_position
-        # self.tcp_up_on_basket_joint_position = arm_motion_params.tcp_up_on_basket_joint_position
-        # self.tcp_start_place_joint_position = robot_config[robot_type].tcp_start_place_joint_position
-        # self.tcp_up_on_basket_joint_position = robot_config[robot_type].tcp_up_on_basket_joint_position
-        # self.dexterous_hand_controller = DexterousHandController(hand_motion_params, hand_device_params, logger_manager=logger_manager)
         if robot_type == "franka":
             self.robotic_arm_controller = FrankaController(robot_config, logger_manager=logger_manager)
             self.robotic_arm_controller.robot_arm.move_to_start()
@@ -19,10 +14,6 @@ class TaskController(LoggerValidator):
             self.initial_angle_gap = panda_py.ik(self.start_pose)[6]
         elif robot_type == "realman":
             self.robotic_arm_controller = RealManArmController(robot_config, logger_manager=logger_manager)
-            #todo: add realman move to start
-        # self.robotic_arm_controller = RoboticArmController(robot_type, robot_config, logger_manager=logger_manager)
-        # self.move_to_safeplace()
-
         
     def dict_to_list(self, dictionary: dict) -> list:
         return list(dictionary.values())

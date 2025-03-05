@@ -3,7 +3,7 @@ import torch
 from scipy.spatial.transform import Rotation as R_cal
 # Third Party
 """
-因为panda_py库求解能力不行，所以使用curobo库进行求解
+因为panda_py库求解能力fw，所以使用curobo库进行求解
 """
 # cuRobo
 from curobo.types.base import TensorDeviceType
@@ -25,7 +25,7 @@ class FrankaArmPlanner:
         quaternion = rotation.as_quat()
         return quaternion
     
-    def get_translation_and_rotation(self, P_O_C, R, T_C_E, T_E_B):
+    def get_translation_and_rotation(self, P_O_C, T_C_E, T_E_B):
         """
         根据给定的参数计算物体相对于基座的位置P_O_B和旋转。
         """
@@ -65,7 +65,7 @@ class FrankaArmPlanner:
         )
         ik_solver = IKSolver(ik_config)
 
-        translation, rotation = self.get_translation_and_rotation(P_O_C, R, T_C_E, T_E_B)
+        translation, rotation = self.get_translation_and_rotation(P_O_C, T_C_E, T_E_B)
         translation_tensor = torch.tensor(translation, device=tensor_args.device, dtype=tensor_args.dtype)
         rotation_tensor = torch.tensor(rotation, device=tensor_args.device, dtype=tensor_args.dtype)
         goal = Pose(translation_tensor, rotation_tensor)
@@ -80,10 +80,22 @@ class FrankaArmPlanner:
     def plan_curobo(self, P_O_C, R, T_C_E, T_E_B,initial_angle_gap):
         """
         根据给定的参数计算机械臂的7个关节角度。curobo负责前6个关节，第7个关节由estimation给到的R调整
+        P_O_C: 物体相对于相机的位置
+        R: 物体相对于相机的旋转
+        T_C_E: 相机相对于末端法兰盘的位置
+        T_E_B: 末端法兰盘相对于基座的位置
+        initial_angle_gap: 初始角度差距
         """
-        q_solution = self.curobo_process(P_O_C, T_C_E, T_E_B)
-
         target_ee_angle = R + initial_angle_gap
-        q_solution[6] = target_ee_angle # 调整末端法兰盘的角度
 
-        return q_solution
+        P_O_C_pre = P_O_C.copy()
+        P_O_C_pre[2] -= 0.15
+        q_solution_pre = self.curobo_process(P_O_C_pre, T_C_E, T_E_B)
+        q_solution_pre[6] = target_ee_angle # 调整末端法兰盘的角度
+
+        q_solution = self.curobo_process(P_O_C, T_C_E, T_E_B)
+        q_solution[6] = target_ee_angle # 调整末端法兰盘的角度
+        
+        q_list = [q_solution_pre, q_solution]
+
+        return q_list

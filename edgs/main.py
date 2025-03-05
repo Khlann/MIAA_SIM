@@ -1,112 +1,90 @@
-import time
+import sys
+import cv2
+# 下面三个路径自行替换为自己的路径
+project_root_path = "/home/arlen/arlen/miaa_sim/edgs"
+gsam_path = "/home/arlen/arlen/miaa_sim/edgs/external/gsam2"
+snowboy_path = "/home/arlen/arlen/miaa_sim/edgs/external/snowboy"
+sys.path.insert(0,project_root_path)
+sys.path.insert(0,gsam_path)
+sys.path.insert(0,snowboy_path)
 
-from snowboy.examples.Python3 import snowboydecoder
-from dexterous_grasp.device_module.cameras import L515, D405
-from dexterous_grasp.device_module.digital_io.microphone import Microphone
-from dexterous_grasp.logic_module.control_module import TaskController
-from dexterous_grasp.logic_module.planning_module import RoboticArmPlanner
-from dexterous_grasp.logic_module.vision_module import GroundedSAM, Estimation2D
-from dexterous_grasp.logic_module.understanding_module import IFlytekInterface, GPT4Integration
-from dexterous_grasp.config import (request_info, iflytek_config, ground_sam2_config, camera2base,
-                                    dexterous_hand_grasp_pose, grasp_safe_distance, arm_motion_params,
-                                    hand_motion_params, hand_device_params, robot_arm_ip_address,
-                                    audio_record_params, awake_params, feedback_params)
-from dexterous_grasp.logger_module.logger import LoggerManager
-from dexterous_grasp.utils.common import play_audio_file
+from dexterous_grasp.logic_module import IFlytekInterface, Dinox,TaskController, FrankaArmPlanner, Estimation, DoubaoClient
+from dexterous_grasp.logger_module import LoggerManager
+from dexterous_grasp.device_module import D435i, Speaker, Microphone
+from external.snowboy.examples.Python3 import snowboydecoder
+from dexterous_grasp.config import (iflytek_config, franka_config, feedback_params, audio_record_params, awake_params,doubao_config,api_token)
 
-
-class DexterousGraspTask:
-
-    def __init__(self, logger_manager, upstair=True):
-        self.logger_manager = logger_manager
+class EdgsTasks():
+    def __init__(self, project_root_path, robot_type):
+        self.logger_manager = LoggerManager(project_root_path)
         self.ifly_interface = IFlytekInterface(iflytek_config, self.logger_manager)
-        self.gpt_interface = GPT4Integration(request_info, self.logger_manager)
-        self.grounded_sam2 = GroundedSAM(ground_sam2_config, self.logger_manager)
-        self.estimation = Estimation2D(self.logger_manager)
-        self.robotic_arm_planner = RoboticArmPlanner(camera2base, dexterous_hand_grasp_pose, grasp_safe_distance,
-                                                     self.logger_manager)
+        self.task_controller = TaskController(robot_type,franka_config, self.logger_manager)
+        self.robot_planner = FrankaArmPlanner()
+        self.dinox = Dinox(api_token)
+        self.estimation2D = Estimation()
+        self.camera = D435i(self.logger_manager)
+        self.speaker = Speaker()
         self.microphone = Microphone(audio_record_params, awake_params, snowboydecoder, self.logger_manager)
-        self.task_controller = TaskController(arm_motion_params, hand_motion_params, hand_device_params,
-                                              robot_arm_ip_address, self.logger_manager)
-        self.realsense_camera = D405(self.logger_manager) if upstair else L515(self.logger_manager)
-
-    def execute_step(self, step_message, function, *args):
-        self.logger_manager.logger.info(step_message)
-        return function(*args)
-
-    def capture_image(self, step_message):
-        self.realsense_camera.capture_current_info()
-        return self.execute_step(step_message, self.realsense_camera.get_color_info)
+        self.doubao_interface = DoubaoClient(doubao_config)
 
     def process_task(self):
-        play_audio_file(iflytek_config.start_recording_audio_path)
+        print("Sucessfully detected wake word")
+        
         # Step 1: Voice to Text using IFlytekInterface
-        audio_frames = self.microphone.listen()
-        connection, language_prompt = self.execute_step("# Step 1: Voice to Text using IFlytekInterface",
-                                            self.ifly_interface.audio_frame2text, b''.join(audio_frames))
+        self.speaker.play_audio(iflytek_config.start_recording_audio_path)
+        audio_frames = self.microphone.listen() 
+        connection, language_prompt = self.ifly_interface.audio_frame2text(b''.join(audio_frames))
         if not connection:
-            play_audio_file(feedback_params.internet_error)
+            self.speaker.play_audio(feedback_params.internet_error)
             return None
-
         if language_prompt is None:
-            play_audio_file(feedback_params.not_clear)
+            self.speaker.play_audio(feedback_params.not_clear)
             return None
-
-        self.logger_manager.create_prompt_folder(language_prompt)
-        play_audio_file(iflytek_config.stop_recording_audio_path)
+        self.speaker.play_audio(iflytek_config.stop_recording_audio_path)
 
         # Step 2: Capture RGB-D using Realsense Camera
-        color_image, _ = self.capture_image("# Step 2: Capture RGB-D using Realsense Camera")
+        self.camera.capture_current_info()
+        color_image, _ = self.camera.get_color_info()
+        cv2.imwrite("color_image.png", color_image)
+        color_image_path = "color_image.png"
         if color_image is None:
-            play_audio_file(feedback_params.photograph_error)
+            self.speaker.play_audio(feedback_params.camera_error)
             return None
 
-        # Step 3: Use GPT4Integration to understand the text and connect to image
-        connection, gpt_result = self.execute_step("# Step 3: Use GPT4Integration to understand the text and connect to image",
-                                       self.gpt_interface.understand_image_by_text, language_prompt, color_image)
-        if not connection:
-            play_audio_file(feedback_params.internet_error)
-            return None
+        # Step 3: Use VLM to understand the text and connect to image
+        gpt_result = self.doubao_interface.understand_image_by_text(language_prompt, color_image_path)        
         if gpt_result is None:
-            play_audio_file(feedback_params.object_error)
             return None
-
-        # Step 4: Use GroundedSAM for object segmentation based on GPT result
-        mask, _, _, _ = self.execute_step(
-            "# Step 4: Use GroundedSAM for object segmentation based on GPT result",
-            self.grounded_sam2.segment, gpt_result, color_image)
+        
+        # Step 4: Use Dinox to get mask
+        mask = self.dinox.get_mask("color_image.png", gpt_result)
         if mask is None:
-            play_audio_file(feedback_params.location_error)
+            self.speaker.play_audio(feedback_params.not_understand)
             return None
-
-        # Step 5: Optimize the segmentation result using Estimation2D
-        position, z_axis_radian = self.execute_step(
-            "# Step 5: Optimize the segmentation result using Estimation2D",
-            self.estimation.get_3d_position_and_z_axis_radian, mask, self.realsense_camera)
-        if position is None:
+        
+        # Step 5: Use Estimation to get 2D pose
+        P_O_C, R = self.estimation2D.process_mask_and_transform(mask, self.camera)
+        if P_O_C is None:
             return None
+        
+        # Step 6: Plan robotic arm movement
+        T_E_B = self.task_controller.robotic_arm_controller.robot_arm.get_pose()
+        initial_angle_gap = self.task_controller.initial_angle_gap
+        q_list = self.robot_planner.plan_curobo(P_O_C, R, franka_config.T_C_E, T_E_B,initial_angle_gap)
 
-        # Step 6: Robotic Planning
-        tpose_sequence = self.execute_step("# Step 6: Robotic Planning",
-                                           self.robotic_arm_planner.plan_path, position, z_axis_radian)
-        if tpose_sequence is None:
-            return None
-
-        # Step 7: Robotic Execution
-        self.execute_step("# Step 7: Robotic Execution",
-                          self.task_controller.execute_task, tpose_sequence)
-
-        self.logger_manager.logger.info("Task completed successfully.")
-
-        play_audio_file(feedback_params.task_completed)
+        # Step 7: Execute movement
+        self.task_controller.robotic_arm_controller.execute_movement_joints(q_list)
+        self.task_controller.robotic_arm_controller.close_gripper()
+        self.task_controller.robotic_arm_controller.execute_movement_pose(self.task_controller.start_pose)
+        self.task_controller.robotic_arm_controller.open_gripper()
 
     def loop(self):
         print("Listening... Press Ctrl+C to exit")
-        play_audio_file(feedback_params.ready_go)
+        self.speaker.play_audio(feedback_params.ready_go)
         self.microphone.detector.start(detected_callback=self.process_task, sleep_time=0.03)
 
-
 if __name__ == "__main__":
-    logger_manager = LoggerManager()
-    task = DexterousGraspTask(logger_manager, upstair=False)
+    robot_type = "franka"
+    # project_root_path = "/home/arlen/arlen/miaa_sim/edgs"
+    task = EdgsTasks(project_root_path, robot_type)
     task.loop()

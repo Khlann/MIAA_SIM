@@ -36,8 +36,9 @@ class FrankaController(LoggerValidator):
             return False
 
 
-    def execute_movement_joints(self, joints: list):
-        self.robot_arm.move_to_joint_position(joints)
+    def execute_movement_joints(self, q_list: list):
+        for q in q_list:
+            self.robot_arm.move_to_joint_position(q)
         return True
     
     def execute_movement_pose(self, pose_matrix: list):

@@ -1,17 +1,17 @@
 import base64
 import os
-# 通过 pip install volcengine-python-sdk[ark] 安装方舟SDK
 from volcenginesdkarkruntime import Ark
+from dexterous_grasp.config import command_token
+from dexterous_grasp.logger_module import LoggerValidator
 
-
-class DoubaoClient:
-    def __init__(self, api_key, model_config):
-        # 初始化客户端
-        self.client = Ark(api_key=api_key)
-        # 存储模型配置
-        self.model_config = model_config
-        # 初始化消息列表
+class DoubaoClient(LoggerValidator):
+    def __init__(self, doubao_config, logger_manager=None):
+        super().__init__(logger_manager)
+        self.client = Ark(api_key=doubao_config.api_key)
+        self.model_config = doubao_config.model_config
         self.messages = []
+        self.connection_status = True
+        self.doubao_config = doubao_config
 
     def encode_image(self, image_path):
         """
@@ -31,21 +31,25 @@ class DoubaoClient:
             else:
                 raise ValueError("Unsupported image format")
 
-    def send_image_query(self, image_path, user_question, append_messages=True):
+    def understand_image_by_text(self, text, color_image, append_messages=False):
         """
         发送包含图片的查询请求
-        :param image_path: 图片路径
-        :param user_question: 用户问题
+        :param color_image: 图片路径
+        :param text: 用户文本输入
         :param append_messages: 是否追加消息到历史记录
         :return: 模型回复
         """
-        base64_image = self.encode_image(image_path)
+        self.connection_status = True
+        self.logger_manager.logger.info(f"Sending text to GPT-4: {text}")
+        base64_image = self.encode_image(color_image)
+        full_prompt = self.doubao_config.single_en_prompt.replace(command_token, text)
+
         user_message = {
             "role": "user",
             "content": [
                 {
                     "type": "text",
-                    "text": user_question
+                    "text": full_prompt
                 },
                 {
                     "type": "image_url",
@@ -77,29 +81,31 @@ class DoubaoClient:
         if append_messages:
             self.messages.append(model_reply_dict)
 
-        return model_reply
+        result = model_reply.content
+        return result
 
 
-# 配置信息
-api_key = "e90d7e28-2908-45c1-b321-fe71c1a9a9c7"
-model_config = {
-    "model": "doubao-1-5-vision-pro-32k-250115",
-    "max_tokens": 200,
-    "temperature": 0.7,
-    "stream": False,
-    "stop": ["结束"]
-}
+if __name__ == "__main__":
+    # 配置信息
+    api_key = "e90d7e28-2908-45c1-b321-fe71c1a9a9c7"
+    model_config = {
+        "model": "doubao-1-5-vision-pro-32k-250115",
+        "max_tokens": 200,
+        "temperature": 0.7,
+        "stream": False,
+        "stop": ["结束"]
+    }
 
-# 创建 DoubaoClient 实例
-doubao_client = DoubaoClient(api_key, model_config)
+    # 创建 DoubaoClient 实例
+    doubao_client = DoubaoClient(api_key, model_config)
 
-# 测试追加消息模式
-image_path = "/home/arlen/arlen/miaa_sim/atomic_tasks/color_image.png"
-# reply1 = doubao_client.send_image_query(image_path, "图片里讲了什么?")
-# print("追加消息模式 - 第一轮回复:", reply1)
-# reply2 = doubao_client.send_image_query(image_path, "还有其他细节吗?")
-# print("追加消息模式 - 第二轮回复:", reply2)
+    # 测试追加消息模式
+    color_image = "/home/arlen/arlen/miaa_sim/atomic_tasks/color_image.png"
+    # reply1 = doubao_client.send_image_query(color_image, "图片里讲了什么?")
+    # print("追加消息模式 - 第一轮回复:", reply1)
+    # reply2 = doubao_client.send_image_query(color_image, "还有其他细节吗?")
+    # print("追加消息模式 - 第二轮回复:", reply2)
 
-# 测试单次调用模式
-reply3 = doubao_client.send_image_query(image_path, "这张图片主要颜色是什么?", append_messages=False)
-print("单次调用模式 - 回复:", reply3)
+    # 测试单次调用模式
+    reply3 = doubao_client.send_image_query(color_image, "这张图片主要颜色是什么?", append_messages=False)
+    print("单次调用模式 - 回复:", reply3)
