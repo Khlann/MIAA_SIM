@@ -13,7 +13,7 @@ proxy_settings = ProxySettings(
     https="http://localhost:7890"
 )
 
-api_key = ""#gpt的
+api_key = ""#
 
 file_paths = FilePaths(
     understanding_test_image=os.path.join( "edgs/dexterous_grasp/config/unittest_assets/understanding/over.jpeg"),
@@ -79,7 +79,7 @@ iflytek_config = IflytekConfig(
 
 doubao_config = DoubaoConfig(
     # 配置信息
-    api_key = "e90d7e28-2908-45c1-b321-fe71c1a9a9c7",
+    api_key = "",
     model_config = {
         "model": "doubao-1-5-vision-pro-32k-250115",
         "max_tokens": 200,
