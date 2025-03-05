@@ -1,6 +1,6 @@
 
 # Introduction
-This is the codebase for the paper <a hraf="https://arxiv.org/abs/2412.10694">Grasp What You Want: Embodied Dexterous Grasping System Driven by Your Voice</a> 在franka机器人上的实现。
+This is the codebase for the paper [Grasp What You Want: Embodied Dexterous Grasping System Driven by Your Voice](https://arxiv.org/abs/2412.10694) 在franka机器人上的实现。
 # Installation
 ```
 conda create --name edgs python=3.10
@@ -11,7 +11,7 @@ pip install volcengine-python-sdk[ark]
 # for understanding module
 sudo apt-get install portaudio19-dev
 ```
-## 安装<a hraf="https://curobo.org/get_started/1_install_instructions.html">curobo</a>
+## 安装 [curobo](https://curobo.org/get_started/1_install_instructions.html)
 PyTorch 1.15 or newer. PyTorch 2.0+ is recommended.
 ```
 cd edgs/external
@@ -33,12 +33,12 @@ cd snowboy/swig/Python3
 make
 
 ## 设置dinox
-在<a hraf="https://cloud.deepdataspace.com/">dino-x开放平台</a>注册帐号后会有20元的额度，可用于购买dino-x的服务。
+在[dino-x开放平台](https://cloud.deepdataspace.com/)注册帐号后会有20元的额度，可用于购买dino-x的服务。
 
 点击控制台-Token密钥，创建项目后即可获得token。然后在路径`edgs/dexterous_grasp/config/vision_module_variant.py`中填入token。
 
 ## 设置doubao
-在<a hraf="https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-pro-32k&projectName=undefined">火山引擎官网</a>获取doubao的api_key。
+在火山引擎官网(https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-pro-32k&projectName=undefined)获取doubao的api_key。
 在路径`edgs/dexterous_grasp/config/understanding_module_varant.py`中填入api_key。
 
 
