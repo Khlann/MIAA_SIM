@@ -42,5 +42,5 @@ ground_sam2_config = GroundSam2Config(
     text_threshold=text_threshold
 )
 
-api_token = "82c4f05eadf72bfae374da97c456344c"
+api_token = "31cf5ba0110357796936e88bcfc2762f"
 

@@ -1,3 +1,5 @@
+# Introduction
+This is the codebase for the paper <a hraf="https://arxiv.org/abs/2412.10694">Grasp What You Want: Embodied Dexterous Grasping System Driven by Your Voice</a> 在franka机器人上的实现。
 # Installation
 ```
 conda create --name edgs python=3.10
