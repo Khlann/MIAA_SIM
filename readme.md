@@ -2,6 +2,7 @@
 ```
 conda create --name edgs python=3.10
 conda activate edgs
+pip install -r requirements.txt
 # for doubao
 pip install volcengine-python-sdk[ark] 
 # for awake
@@ -16,7 +17,6 @@ make
 sudo apt-get install portaudio19-dev
 # for curobo
 cd edgs/external/curobo
-pip install -r requirements.txt
 pip install -e .
 ```
 
