@@ -24,6 +24,7 @@ pip install -e .
 ```
 
 ## For awake
+```
 cd edgs/external
 sudo apt update
 sudo apt install swig
@@ -31,6 +32,7 @@ sudo apt install libblas-dev liblapack-dev
 sudo apt install libatlas-base-dev
 cd snowboy/swig/Python3
 make
+```
 
 ## 设置dinox
 在[dino-x开放平台](https://cloud.deepdataspace.com/)注册帐号后会有20元的额度，可用于购买dino-x的服务。
