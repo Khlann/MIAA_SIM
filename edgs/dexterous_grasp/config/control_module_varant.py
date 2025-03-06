@@ -7,6 +7,7 @@ HandMotionParams = namedtuple('HandMotionParams', ['speedSet', 'angleSet_execute
 HandDeviceParams = namedtuple('HandDeviceParams', ['port', 'baudrate', 'regdict'])
 FrankaParams = namedtuple('FrankaParams', ['hostname', 'username', 'password','T_C_E'])
 RealManParams = namedtuple('RealManParams', ['hostname', 'username', 'password'])
+FrankaPose = namedtuple('FrankaPose', ['place_pose'])
 
 # Robot arm IP address
 # robot_arm_ip_address = "192.168.1.215"
@@ -76,4 +77,13 @@ realman_config = RealManParams(
     hostname="",
     username="",
     password=""
+)
+
+franka_pose = FrankaPose(
+    place_pose = [
+        [9.99945904e-01, -9.06335005e-03, 2.60628050e-03, 3.07498051e-01],
+        [-9.05288659e-03, -9.99941399e-01, -3.99890525e-03, -6.31510330e-04],
+        [2.64237125e-03, 3.97509457e-03, -9.99988608e-01, 4.86762029e-01],
+        [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]
+    ]
 )

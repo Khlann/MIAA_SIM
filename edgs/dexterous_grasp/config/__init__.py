@@ -19,7 +19,8 @@ from .control_module_varant import (
     hand_motion_params,
     hand_device_params,
     franka_config,
-    realman_config
+    realman_config,
+    franka_pose
 )
 
 from .digital_io_varant import (

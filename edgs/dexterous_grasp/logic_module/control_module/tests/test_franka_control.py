@@ -2,7 +2,7 @@ import sys
 import os
 import numpy as np
 import panda_py
-project_root = "/home/arlen/arlen/miaa_sim/atomic_tasks"
+project_root = "/home/arlen/arlen/miaa_sim/edgs"
 sys.path.insert(0,project_root)
 
 from dexterous_grasp.logic_module.control_module import TaskController

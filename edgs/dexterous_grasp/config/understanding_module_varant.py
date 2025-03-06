@@ -79,7 +79,7 @@ iflytek_config = IflytekConfig(
 
 doubao_config = DoubaoConfig(
     # 配置信息
-    api_key = "",
+    api_key = "e90d7e28-2908-45c1-b321-fe71c1a9a9c7",
     model_config = {
         "model": "doubao-1-5-vision-pro-32k-250115",
         "max_tokens": 200,
