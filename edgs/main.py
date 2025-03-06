@@ -32,7 +32,6 @@ class EdgsTasks():
 
     def process_task(self):
         print("Sucessfully detected wake word")
-        
         # Step 1: Voice to Text using IFlytekInterface
         # self.speaker.play_audio(iflytek_config.start_recording_audio_path)
         # audio_frames = self.microphone.listen() 
@@ -44,8 +43,7 @@ class EdgsTasks():
         #     self.speaker.play_audio(feedback_params.not_clear)
         #     return None
         # self.speaker.play_audio(iflytek_config.stop_recording_audio_path)
-
-        language_prompt = "帮我拿一个雪碧"
+        language_prompt = "帮我拿一个锤子"
 
         # Step 2: Capture RGB-D using Realsense Camera
         self.camera.capture_current_info()
@@ -57,7 +55,8 @@ class EdgsTasks():
             return None
 
         # Step 3: Use VLM to understand the text and connect to image
-        gpt_result = self.doubao_interface.understand_image_by_text(language_prompt, color_image_path)        
+        gpt_result = self.doubao_interface.understand_image_by_text(language_prompt, color_image_path)  
+        print("gpt_result:",gpt_result)      
         if gpt_result is None:
             return None
         
@@ -80,8 +79,10 @@ class EdgsTasks():
         # Step 7: Execute movement
         self.task_controller.robotic_arm_controller.execute_movement_joints(q_list)
         self.task_controller.robotic_arm_controller.close_gripper()
-        self.task_controller.robotic_arm_controller.execute_movement_pose(self.task_controller.start_pose)
-        self.task_controller.robotic_arm_controller.execute_movement_joint(panda_py.ik(franka_pose.place_pose))
+        q_1 = panda_py.ik(franka_pose.pick_up_pose)
+        # q_2 = self.robot_planner.pose_to_joint(franka_pose.place_pose)
+        place_list = [q_1]
+        self.task_controller.robotic_arm_controller.execute_movement_joints(place_list)
         self.task_controller.robotic_arm_controller.open_gripper()
 
     def loop(self):

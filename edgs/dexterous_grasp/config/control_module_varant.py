@@ -7,7 +7,7 @@ HandMotionParams = namedtuple('HandMotionParams', ['speedSet', 'angleSet_execute
 HandDeviceParams = namedtuple('HandDeviceParams', ['port', 'baudrate', 'regdict'])
 FrankaParams = namedtuple('FrankaParams', ['hostname', 'username', 'password','T_C_E'])
 RealManParams = namedtuple('RealManParams', ['hostname', 'username', 'password'])
-FrankaPose = namedtuple('FrankaPose', ['place_pose'])
+FrankaPose = namedtuple('FrankaPose', ['pick_up_pose','place_pose','pick_up_joint','place_joint'])
 
 # Robot arm IP address
 # robot_arm_ip_address = "192.168.1.215"
@@ -80,10 +80,18 @@ realman_config = RealManParams(
 )
 
 franka_pose = FrankaPose(
-    place_pose = [
-        [9.99945904e-01, -9.06335005e-03, 2.60628050e-03, 3.07498051e-01],
-        [-9.05288659e-03, -9.99941399e-01, -3.99890525e-03, -6.31510330e-04],
-        [2.64237125e-03, 3.97509457e-03, -9.99988608e-01, 4.86762029e-01],
+    pick_up_pose = [
+        [9.99127271e-01, 2.53216505e-04, -4.15380770e-02, 3.72154993e-01],
+        [8.24733595e-04, -9.99895602e-01, 1.37424452e-02, 9.02327462e-03],
+        [-4.15302607e-02, -1.37647096e-02, -9.99042408e-01, 2.27123375e-01],
         [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]
-    ]
+    ],
+    place_pose = [
+        [0.51680651, -0.85371277, -0.06376806, 0.29916253],
+        [-0.8555555, -0.51768258, -0.00320589, -0.34101281],
+        [-0.03027471, 0.05621394, -0.9979596, 0.09485565],
+        [0., 0., 0., 1.]
+    ],
+    pick_up_joint = [-0.011383417062461376, -0.25433722138404846, 0.022677350789308548, -2.6251397132873535, 0.005148423369973898, 2.295717477798462, 0.8916455507278442],
+    place_joint = []
 )

@@ -42,7 +42,7 @@ class FrankaArmPlanner:
         translation = P_O_B
         return translation, rotation
 
-    def curobo_process(self, P_O_C,T_C_E, T_E_B):
+    def get_ik_solver(self):
         tensor_args = TensorDeviceType()
         config_file = load_yaml(join_path(get_robot_configs_path(), "franka.yml"))
         urdf_file = config_file["robot_cfg"]["kinematics"][
@@ -64,6 +64,11 @@ class FrankaArmPlanner:
             use_cuda_graph=True,
         )
         ik_solver = IKSolver(ik_config)
+        return ik_solver
+    
+    def curobo_process(self, P_O_C,T_C_E, T_E_B):
+        tensor_args = TensorDeviceType()
+        ik_solver = self.get_ik_solver()
 
         translation, rotation = self.get_translation_and_rotation(P_O_C, T_C_E, T_E_B)
         translation_tensor = torch.tensor(translation, device=tensor_args.device, dtype=tensor_args.dtype)
@@ -76,6 +81,14 @@ class FrankaArmPlanner:
         # 将tensor转为list
         q_solution = q_solution.tolist()[0]
         return q_solution
+    
+    def pose_to_joint(self, pose):
+        goal = Pose(torch.tensor(pose, device="cuda", dtype=torch.float32))
+        ik_solver = self.get_ik_solver()
+        joint = ik_solver.solve_batch(goal)
+        joint = joint.solution[joint.success]
+        joint = joint.tolist()[0]
+        return joint
     
     def plan_curobo(self, P_O_C, R, T_C_E, T_E_B,initial_angle_gap):
         """
