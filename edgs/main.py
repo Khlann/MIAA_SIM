@@ -33,17 +33,17 @@ class EdgsTasks():
     def process_task(self):
         print("Sucessfully detected wake word")
         # Step 1: Voice to Text using IFlytekInterface
-        # self.speaker.play_audio(iflytek_config.start_recording_audio_path)
-        # audio_frames = self.microphone.listen() 
-        # connection, language_prompt = self.ifly_interface.audio_frame2text(b''.join(audio_frames))
-        # if not connection:
-        #     self.speaker.play_audio(feedback_params.internet_error)
-        #     return None
-        # if language_prompt is None:
-        #     self.speaker.play_audio(feedback_params.not_clear)
-        #     return None
-        # self.speaker.play_audio(iflytek_config.stop_recording_audio_path)
-        language_prompt = "帮我拿一个锤子"
+        self.speaker.play_audio(iflytek_config.start_recording_audio_path)
+        audio_frames = self.microphone.listen() 
+        connection, language_prompt = self.ifly_interface.audio_frame2text(b''.join(audio_frames))
+        if not connection:
+            self.speaker.play_audio(feedback_params.internet_error)
+            return None
+        if language_prompt is None:
+            self.speaker.play_audio(feedback_params.not_clear)
+            return None
+        self.speaker.play_audio(iflytek_config.stop_recording_audio_path)
+        # language_prompt = "帮我拿一个锤子"
 
         # Step 2: Capture RGB-D using Realsense Camera
         self.camera.capture_current_info()
@@ -87,7 +87,7 @@ class EdgsTasks():
 
     def loop(self):
         print("Listening... Press Ctrl+C to exit")
-        self.process_task()
+        # self.process_task()
         self.speaker.play_audio(feedback_params.ready_go)
         self.microphone.detector.start(detected_callback=self.process_task, sleep_time=0.03)
 
