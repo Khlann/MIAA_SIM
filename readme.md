@@ -1,68 +1,109 @@
-# 介绍
-本仓库旨在给机器人初学者提供一个简单易用的仿真环境，以供学习。特点在于省略了ros，rviz等入门门槛较高的部分，直接使用sapien库进行仿真。
+# Introduction
 
-# 安装
-系统环境要求：
+This is a simple trial integrating [*AnyGrasp*](https://graspnet.net/anygrasp.html) with [*Sapien*](https://sapien.ucsd.edu/) simulator. Specifically, we captures a frame of simulated objects and call *AnyGrasp*'s SDK to predict possible grasp pose, which can be used for the robot arm to perform grasping combining with motion planning[(see this branch)](https://github.com/Khlann/MIAA_SIM/tree/miaa_sim).
 
-```bash
-pip install sapien==3.0.0b1 mplib==0.2.1
+<p align="center">
+  <img src="pic/color.png" alt="Image 1" height="250px" />
+  <img src="pic/poses.png" alt="Image 2" height="250px" />
+</p>
+
+# Preparation
+
+## AnyGrasp SDK
+
+In general, you can follow the instructions given by *AnyGrasp* [official repository](https://github.com/graspnet/anygrasp_sdk) to build its dependencies.
+
+But regarding of that so many errors have occur since this trial is created, the process of successfully setting up the environment and encountered problems with resolutions are outlined below for reference.
+
+#### Building MinkowskiEngine
+
+The first module needed to build is Nvidia's *MinkowskiEngine*, we followed the [documentation](https://github.com/NVIDIA/MinkowskiEngine#anaconda) of its repository to **build locally**, with:
+
+```
+python==3.8.20
+cuda==11.1
+torch==1.9.0+cu111
+torchvision==0.10.0+cu111
+gcc==9.5.0
+ninja==1.11.1.3
 ```
 
-# 3D模型
-模型文件位于 asset目录下，使用者可以自行添加模型文件。这里提供一个urdf库，[PartNet](https://sapien.ucsd.edu/browse)。建议使用者使用学校邮箱进行注册，可以免费下载模型。，可以免费下载模型。
+Different from the doc, we install *torch* and *torchvision* via *pip*, see [here](https://pytorch.org/get-started/previous-versions/) to install different previous version of *pytorch*, and [here](https://developer.nvidia.com/cuda-toolkit-archive) to install different previous version of *cuda* toolkit.
 
-urdf是一种机器人通用描述性文件，可以描述机器人的关节、连杆、传感器、执行器等。可以参考[urdf](https://fishros.com/d2lros2/#/humble/chapt8/get_started/1.URDF%E7%BB%9F%E4%B8%80%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%BB%BA%E6%A8%A1%E8%AF%AD%E8%A8%80), 你可以试试这个生成的urdf是否可以导入到sapien中。
+**Remember to ```pip install ninja``` before building despite it is not mentioned.**
 
-# 机器人
-该仓库提供了三款常见的机器人模型，用户可以根据自己需要选择。使用方法如下：
+The *cuda* version should be 10.x/11.x according to the doc, but the contributor of *AnyGrasp* released a [branch](https://github.com/chenxi-wang/MinkowskiEngine/tree/cuda-12-1) fixing incompatible problem with *cuda* 12.1, try it if need it.
 
-```python
-controller = Controller()
-robot = controller.add_robot(panda_config)#panda_config需要从config中引用
+If your system crashes in building process, try ```export MAX_JOBS=2``` in the terminal.
+
+#### Installing other dependencies for AnyGrasp
+
+```
+git clone https://github.com/graspnet/anygrasp_sdk.git
+cd anygrasp_sdk
+pip install -r requirements.txt
 ```
 
-# 运动规划
-运动规划采用了[mplib](https://motion-planning-lib.readthedocs.io/latest/tutorials/getting_started.html)库。同样也可以参考[moveit](https://moveit.ai/install-moveit2/binary/)
+If you get complaint about deprecation alias in *numpy*, try ```pip install numpy==1.23.4```(*pip* might warn that module *graspnetAPI* is only compatible with *numpy*==1.20.3, that's fine), we put version information of their requirements.txt below for reference:
 
-使用者需要具备一定机器人运动学基础，详细可以参考[机器人运动学](https://fishros.com/d2lros2/#/humble/chapt6/basic/1.%E7%9F%A9%E9%98%B5%E4%B8%8E%E7%9F%A9%E9%98%B5%E8%BF%90%E7%AE%97),建议至少看完第六章内容。
-
-代码中的Pose采用三维位置（xyz，单位为米）和四元数（wxyz，单位为弧度）表示
-
-```python
-Pose([0.4, 0.3, 0.12], [0, 1, 0, 0])
+```
+numpy==1.23.4
+Pillow==10.4.0
+scipy==1.10.1
+tqdm==4.67.1
+graspnetAPI==1.2.11
+open3d==0.19.0
+MinkowskiEngine==0.5.4
 ```
 
-# 机器人示教
-两种示教方式，一种是move_to_pose，一种是move_to_joints。
+*AnyGrasp* also needs us to build *pointnet*, just follow their doc.
 
-move_to_pose需要使用者提供目标位置和姿态，move_to_joints需要使用者提供目标关节角度。
+#### License Registration
 
-**move_to_pose**
+Register for the license for sdk follow [here](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration), if the request is passed, you will receive two pre-trained model weights files and license .zip file, they will be used in our code.
 
-点击Transform按钮,然后勾选enable。点击机器人末端执行器，通过移动坐标系（分为Translate和Rotate），然后点击Teleport按钮，即可完成示教。
-![alt text](pic/image.png)
+## Installing remaining dependencies
 
-**move_to_joints**
-
-点击机器人，然后在右下角的joints栏中，移动关节角度，即可完成示教。
-![alt text](pic/image-1.png)
-
-可以通过`Copy Joint Position`按钮，复制当前关节角度。 
-
-代码实现：
-
-move_to_pose:
-```python
-mp.move_to_pose(target_pose)
+```
+git clone https://github.com/Khlann/MIAA_SIM/tree/anygrasp
+cd MIAA_SIM
+pip install -r requirements.txt
 ```
 
-move_to_joints:
-```python
-mp.move_to_joints(target_joints)
+<!-- Note that we use mplib nightly build to avoid of [issue](https://github.com/haosulab/MPlib/issues/98) due to development accident. If you encounter this issue too and *pip* can not find the nightly package, you can download the .whl file corresponding to your python version from [here](https://github.com/haosulab/MPlib/releases/tag/nightly) then run ```python -m pip install xxx.whl``` to install. -->
+
+## Building AnyGrasp SDK into local repository
+
+1. Download **checkpoint_tracking.tar**, **checkpoint_detection.tar**, **license_{your name}.zip** from received email from the official. Extract the .zip file into **MIAA_SIM/license/**, move two .tar files into **MIAA_SIM/log/**.
+
+2. Download compiled library files to support API from these site and rename them as [1.gsnet.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_detection/gsnet_versions), [2.tracker.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_tracking/tracker_versions), [3.lib_cxx.so](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration/lib_cxx_versions), respectively. Put them under **MIAA_SIM/**, before downloading, choose the version corresponding to your python version, for example, all downloadable versions of **gsnet.so** are listed below:
+
+```
+gsnet.cpython-310-x86_64-linux-gnu.so
+gsnet.cpython-36m-x86_64-linux-gnu.so
+gsnet.cpython-37m-x86_64-linux-gnu.so
+gsnet.cpython-38-x86_64-linux-gnu.so
+gsnet.cpython-39-x86_64-linux-gnu.so
 ```
 
-# 碰撞检测
-这部分内容还未完善，涉及特定任务时，需要使用者自行添加。可以参考[openrave](https://github.com/rdiankov/openrave)
+Say you are using python==3.8.x, you should download **gsnet.cpython-38-x86_64-linux-gnu.so**, same for other compiled library files. You can see there are only files corresponding to **3.6 <= python version <= 3.10**, so you should have a compatible python version in advance.
 
-# 最后
-该仓库还在不断完善中，欢迎使用者提出宝贵意见。
+## Running the demo code
+
+```
+python main.py --debug
+```
+
+If your model weights file is not under the **MIAA_SIM/log/**, you can specify it by passing the argument:
+
+```
+python main.py --debug --checkpoint_path={PATH}
+```
+
+To try more argument, see ```python main.py -h```.
+
+If you meet ```The 'sklearn' PyPI package is deprecated, use 'scikit-learn' rather than 'sklearn' for pip commands.```, try ```export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True```.
+
+## Future works/TODOs
+
+We might utilize the robot arm simulation to complement a whole process of grasping, as well as add more distinct objects in every day life to the simulation scene. Also, *Sapien* provides ray tracking and advance shader features to construct a more realistic simulation scene along with new sensor, which is attracting for more elaboration.

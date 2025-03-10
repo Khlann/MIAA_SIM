@@ -1,0 +1,3 @@
+sapien==3.0.0.dev0
+pyglet==1.5.27
+# mplib==0.2.0.dev20241021+git.da9e0614

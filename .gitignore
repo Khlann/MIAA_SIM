@@ -1,5 +1,10 @@
 external/
+__pycache__/
 config/__pycache__/
 robot/__pycache__/
 assets/
 cache/
+license/
+*.so
+.*
+log/
