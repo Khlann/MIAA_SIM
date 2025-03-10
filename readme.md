@@ -60,13 +60,14 @@ MinkowskiEngine==0.5.4
 
 #### License Registration
 
-Register for the license for sdk follow [here](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration), if the request is passed, you will receive two pre-trained model weights files and license .zip file, they will be used in our code.
+Register for the license of using sdk following their [instructions](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration), if the request is passed, you will receive two pre-trained model weights files and license .zip file, they will be used in our code.
 
 ## Installing remaining dependencies
 
 ```
-git clone https://github.com/Khlann/MIAA_SIM/tree/anygrasp
+git clone https://github.com/Khlann/MIAA_SIM.git
 cd MIAA_SIM
+git checkout -b anygrasp
 pip install -r requirements.txt
 ```
 
@@ -74,9 +75,9 @@ pip install -r requirements.txt
 
 ## Building AnyGrasp SDK into local repository
 
-1. Download **checkpoint_tracking.tar**, **checkpoint_detection.tar**, **license_{your name}.zip** from received email from the official. Extract the .zip file into **MIAA_SIM/license/**, move two .tar files into **MIAA_SIM/log/**.
+1. Download **checkpoint_tracking.tar**, **checkpoint_detection.tar**, **license_{your name}.zip** from received email. Extract the **.zip** file into **MIAA_SIM/license/**, move two **.tar** files into **MIAA_SIM/log/**.
 
-2. Download compiled library files to support API from these site and rename them as [1.gsnet.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_detection/gsnet_versions), [2.tracker.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_tracking/tracker_versions), [3.lib_cxx.so](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration/lib_cxx_versions), respectively. Put them under **MIAA_SIM/**, before downloading, choose the version corresponding to your python version, for example, all downloadable versions of **gsnet.so** are listed below:
+2. Download compiled library files to support API from these site and rename them as [gsnet.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_detection/gsnet_versions), [tracker.so](https://github.com/graspnet/anygrasp_sdk/tree/main/grasp_tracking/tracker_versions), [lib_cxx.so](https://github.com/graspnet/anygrasp_sdk/tree/main/license_registration/lib_cxx_versions), respectively. Put them under **MIAA_SIM/**. Before downloading, choose the version corresponding to your python version, for example, all downloadable versions of **gsnet.so** are listed below:
 
 ```
 gsnet.cpython-310-x86_64-linux-gnu.so
@@ -100,7 +101,7 @@ If your model weights file is not under the **MIAA_SIM/log/**, you can specify i
 python main.py --debug --checkpoint_path={PATH}
 ```
 
-To try more argument, see ```python main.py -h```.
+To try more arguments, see ```python main.py -h```.
 
 If you meet ```The 'sklearn' PyPI package is deprecated, use 'scikit-learn' rather than 'sklearn' for pip commands.```, try ```export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True```.
 
