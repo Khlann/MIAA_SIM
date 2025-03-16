@@ -82,7 +82,7 @@ doubao_config = DoubaoConfig(
     api_key = "e90d7e28-2908-45c1-b321-fe71c1a9a9c7",
     model_config = {
         "model": "doubao-1-5-vision-pro-32k-250115",
-        "max_tokens": 200,
+        "max_tokens": 2000,
         "temperature": 0.7,
         "stream": False,
         "stop": ["结束"]

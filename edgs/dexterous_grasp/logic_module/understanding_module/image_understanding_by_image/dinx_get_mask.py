@@ -35,7 +35,18 @@ class Dinox:
         for idx, obj in enumerate(predictions):
             masks.append(DetectionTask.rle2mask(DetectionTask.string2rle(obj.mask.counts), obj.mask.size))  # convert mask to np.array using DDS API
         
-        mask = masks[0]
+        if text_prompt == "<prompt_free>":
+            for i in range(len(masks)):
+                masks[i] = self.process_mask(masks[i])
+            return masks
+        else:
+            masks[0] = self.process_mask(masks[0])
+            return masks[0]
+
+    def process_mask(self,mask):
+        """
+        Helper function to process mask
+        """
         for i in range(mask.shape[0]):
             for j in range(mask.shape[1]):
                 if mask[i, j]:
@@ -44,3 +55,4 @@ class Dinox:
                     mask[i, j] = 0
         mask = mask.astype(np.uint8)
         return mask
+

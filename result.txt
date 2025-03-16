@@ -1,0 +1,58 @@
+```python
+# There are 3 stages involved in the task. The first stage is to grasp the duck, the second stage is to move the duck above the pot, and the third stage is to drop the duck into the pot.
+num_stages = 3
+
+### stage 1 sub-goal constraints (if any)
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the duck's keypoint (let's assume keypoint 3 as a good grasping point on the duck)."""
+    import numpy as np
+    return np.linalg.norm(end_effector - keypoints[3])
+# Add more sub-goal constraints if needed
+
+### stage 1 path constraints (if any)
+# No path constraints for grasping stage
+
+### stage 2 sub-goal constraints (if any)
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """Move the duck to be above the center of the pot. We can approximate the center of the pot using keypoints 1 and 5. The end-effector should be above this center point with a small z - offset (let's say 5cm)."""
+    import numpy as np
+    pot_center = (keypoints[1] + keypoints[5]) / 2
+    pot_center[2] += 0.05
+    return np.linalg.norm(end_effector - pot_center)
+# Add more sub-goal constraints if needed
+
+### stage 2 path constraints (if any)
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the duck (associated with keypoint 3)."""
+    import numpy as np
+    return np.linalg.norm(end_effector - keypoints[3])
+
+### stage 3 sub-goal constraints (if any)
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """The duck should be inside the pot. We can assume the duck is inside if its position is close to the pot's interior keypoints. Let's use keypoint 6 as a reference point inside the pot and the duck should be close to it in x and y coordinates and have a reasonable z - coordinate (lower than the pot's rim)."""
+    import numpy as np
+    return np.linalg.norm(keypoints[3][:2] - keypoints[6][:2]) + abs(keypoints[3][2] - (keypoints[6][2] - 0.02))
+# Add more sub-goal constraints if needed
+
+### stage 3 path constraints (if any)
+def stage3_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the duck (associated with keypoint 3) until the end of this stage when it releases the duck."""
+    import numpy as np
+    return np.linalg.norm(end_effector - keypoints[3])
+
+"""
+Summarize keypoints to be grasped in all grasping stages.
+The length of the list should be equal to the number of stages.
+For grapsing stage, write the keypoint index. For non-grasping stage, write -1.
+"""
+grasp_keypoints = [3, -1, -1]
+
+"""
+Summarize at **the end of which stage** the robot should release the keypoints.
+The keypoint indices must appear in an earlier stage as defined in `grasp_keypoints` (i.e., a keypoint can only be released only if it has been grasped previously).
+Only release object when it's necessary to complete the task, e.g., drop bouquet in the vase.
+The length of the list should be equal to the number of stages.
+If a keypoint is to be released at the end of a stage, write the keypoint index at the corresponding location. Otherwise, write -1.
+"""
+release_keypoints = [-1, -1, 3]
+```

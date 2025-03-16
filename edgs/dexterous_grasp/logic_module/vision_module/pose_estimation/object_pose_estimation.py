@@ -61,18 +61,13 @@ class Estimation:
         angle = np.radians(angle)
         if angle < 0:
             angle = np.pi + angle
-        # angle = abs(angle)
-
-        # angle = np.pi/2 - angle
-        # angle = abs(angle)
         angle_1 = angle- np.pi/2
         angle_2 = angle + np.pi/2
         if angle_1 > 0 and angle_1 < np.pi:
             angle = angle_1
         elif angle_2 > 0 and angle_2 < np.pi:
             angle = angle_2
-        # angle = angle_1 if angle> 0 else angle_2
-# 
+
         return angle
 
     def process_mask_and_transform(self, mask, cam):
@@ -84,6 +79,12 @@ class Estimation:
         except:
             print("mask is not a 3 channel image")
 
+        x_3d, y_3d, z_3d = self.get_mask_center(mask,cam)
+                    
+        P_O_C = np.array([x_3d, y_3d, z_3d])
+        return P_O_C , angle
+    
+    def get_mask_center(self, mask,cam):
         mask = mask.astype(np.uint8)
         M = cv2.moments(mask)
         cx = int(M['m10'] / M['m00'])
@@ -102,6 +103,20 @@ class Estimation:
         x_3d = np.mean(x_3d_list)
         y_3d = np.mean(y_3d_list)
         z_3d = np.mean(z_3d_list)
-                    
-        P_O_C = np.array([x_3d, y_3d, z_3d])
-        return P_O_C , angle
+        return x_3d, y_3d, z_3d
+    
+    def get_keypoints_3d(self, masks,cam):
+        keypoints = []
+        for mask in masks:
+            x_3d, y_3d, z_3d = self.get_mask_center(mask,cam)
+            keypoints.append([x_3d, y_3d, z_3d])
+        return keypoints
+    
+    def get_keypoints_2d(self, masks):
+        keypoints = []
+        for mask in masks:
+            M = cv2.moments(mask)
+            cx = int(M['m10'] / M['m00'])
+            cy = int(M['m01'] / M['m00'])
+            keypoints.append([cy, cx])
+        return keypoints
