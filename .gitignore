@@ -1,0 +1,6 @@
+external/
+config/__pycache__/
+robot/__pycache__/
+assets/
+cache/
+third_part/
