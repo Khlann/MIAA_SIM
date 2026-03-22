@@ -21,7 +21,7 @@ pip install sapien==3.0.0b1 mplib==0.2.1
 在项目根目录执行：
 
 ```bash
-python3 download_assets_modelscope.py --namespace arlenkang --dataset MIAA_SIM --local-dir .
+python3 scripts/download_assets_modelscope.py --namespace arlenkang --dataset MIAA_SIM --local-dir .
 ```
 
 执行成功后，当前目录下会出现（或覆盖）`asset/` 目录。
@@ -89,6 +89,9 @@ mp.move_to_joints(target_joints)
 
 # 碰撞检测
 这部分内容还未完善，涉及特定任务时，需要使用者自行添加。可以参考[openrave](https://github.com/rdiankov/openrave)
+
+# （可选）MACOS用户
+可以参考[ManiSkill](https://maniskill.readthedocs.io/en/latest/user_guide/getting_started/macos_install.html)来在mac上实现sapien的安装，成功部署后可在mac上显示sapien界面。由于mplib并没有对mac用户有良好的支持，所以还请同学们自行使用第三方运动规划库，如[OMPL](https://ompl.kavrakilab.org/)来完成pick&place的任务，
 
 # 最后
 该仓库还在不断完善中，欢迎使用者提出宝贵意见。
